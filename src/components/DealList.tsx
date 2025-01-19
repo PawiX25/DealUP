@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import moment from 'moment';
 import { motion } from 'framer-motion';
+import { detectStore } from '@/utils/stores';
 
 interface Deal {
   id: string;
@@ -57,6 +58,7 @@ export default function DealList() {
     <div className="grid gap-6">
       {deals.map((deal, index) => {
         const savings = calculateSavings(deal.price, deal.comparisonPrice);
+        const storeName = detectStore(deal.link);
         
         return (
           <motion.div
@@ -84,6 +86,11 @@ export default function DealList() {
                 <div className="flex justify-between items-start">
                   <div>
                     <h2 className="text-xl font-semibold text-foreground">{deal.title}</h2>
+                    {storeName && (
+                      <span className="inline-block mt-1 text-sm px-2 py-1 bg-secondary rounded-full text-foreground/70">
+                        {storeName}
+                      </span>
+                    )}
                     <p className="mt-2 text-foreground/70">{deal.description}</p>
                   </div>
                   <div className="text-right">

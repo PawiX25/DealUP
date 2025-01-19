@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { detectStore } from '@/utils/stores';
 
 export default function CreateDealButton() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -16,9 +17,11 @@ export default function CreateDealButton() {
   const [loading, setLoading] = useState(false);
   const [scraping, setScraping] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [detectedStore, setDetectedStore] = useState<string | null>(null);
 
   const handleLinkChange = async (url: string) => {
     setFormData({...formData, link: url});
+    setDetectedStore(detectStore(url));
     
     if (url.startsWith('http')) {
       setScraping(true);
@@ -138,6 +141,11 @@ export default function CreateDealButton() {
                     value={formData.link}
                     onChange={(e) => handleLinkChange(e.target.value)}
                   />
+                  {detectedStore && (
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2 bg-secondary px-2 py-1 rounded-full text-sm">
+                      {detectedStore}
+                    </div>
+                  )}
                   {scraping && (
                     <div className="absolute right-2 top-1/2 -translate-y-1/2">
                       <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full"></div>
