@@ -14,7 +14,43 @@ export default function CreateDealButton() {
     link: ''
   });
   const [loading, setLoading] = useState(false);
+  const [scraping, setScraping] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleLinkChange = async (url: string) => {
+    setFormData({...formData, link: url});
+    
+    if (url.startsWith('http')) {
+      setScraping(true);
+      setError(null);
+      
+      try {
+        const response = await fetch('/api/scrape', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url }),
+        });
+        
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+          setFormData(prev => ({
+            ...prev,
+            link: url,
+            title: result.data.title || prev.title,
+            description: result.data.description || prev.description,
+            price: result.data.price?.toString() || prev.price,
+            comparisonPrice: result.data.comparisonPrice?.toString() || prev.comparisonPrice,
+            imageUrl: result.data.imageUrl || prev.imageUrl
+          }));
+        }
+      } catch (err) {
+        console.error('Failed to scrape URL:', err);
+      } finally {
+        setScraping(false);
+      }
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,6 +130,20 @@ export default function CreateDealButton() {
                 </div>
               )}
               <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="relative">
+                  <input
+                    type="url"
+                    placeholder="Paste product URL to auto-fill details"
+                    className="w-full p-2 border rounded"
+                    value={formData.link}
+                    onChange={(e) => handleLinkChange(e.target.value)}
+                  />
+                  {scraping && (
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                      <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full"></div>
+                    </div>
+                  )}
+                </div>
                 <input
                   type="text"
                   placeholder="Title"
@@ -155,13 +205,6 @@ export default function CreateDealButton() {
                     />
                   </div>
                 </div>
-                <input
-                  type="url"
-                  placeholder="Link to deal"
-                  className="w-full p-2 border rounded"
-                  value={formData.link}
-                  onChange={(e) => setFormData({...formData, link: e.target.value})}
-                />
                 <div className="flex justify-end gap-3 mt-6">
                   <button
                     type="button"
