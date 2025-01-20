@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../auth/[...nextauth]/route';
 
 export async function GET() {
   try {
@@ -25,9 +27,18 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'You must be logged in to create a deal' },
+        { status: 401 }
+      );
+    }
+
     const data = await request.json();
     
-    if (!data.title || !data.description || !data.price || !data.link || !data.userId) {
+    if (!data.title || !data.description || !data.price || !data.link) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -41,20 +52,6 @@ export async function POST(request: Request) {
       );
     }
 
-    let user = await prisma.user.findFirst({
-      where: { id: data.userId }
-    });
-
-    if (!user) {
-      user = await prisma.user.create({
-        data: {
-          id: data.userId,
-          email: `temp-${data.userId}@example.com`,
-          name: 'Anonymous User'
-        }
-      });
-    }
-
     const deal = await prisma.deal.create({
       data: {
         title: data.title,
@@ -63,7 +60,7 @@ export async function POST(request: Request) {
         comparisonPrice: data.comparisonPrice ? parseFloat(data.comparisonPrice) : null,
         imageUrl: data.imageUrl || null,
         link: data.link,
-        userId: user.id,
+        userId: session.user.id,
       }
     });
     

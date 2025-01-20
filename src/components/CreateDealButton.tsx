@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { detectStore } from '@/utils/stores';
 
 export default function CreateDealButton() {
+  const { data: session } = useSession();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -60,6 +62,12 @@ export default function CreateDealButton() {
     setLoading(true);
     setError(null);
     
+    if (!session) {
+      setError('You must be logged in to create a deal');
+      setLoading(false);
+      return;
+    }
+
     if (!formData.title || !formData.description || !formData.price || !formData.link) {
       setError('All fields are required');
       setLoading(false);
@@ -73,7 +81,6 @@ export default function CreateDealButton() {
         body: JSON.stringify({
           ...formData,
           price: parseFloat(formData.price),
-          userId: 'temp-user-id',
         }),
       });
       
@@ -102,6 +109,17 @@ export default function CreateDealButton() {
       img.src = url;
     }
   };
+
+  if (!session) {
+    return (
+      <button
+        onClick={() => signIn('google')}
+        className="mb-8 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors shadow-sm"
+      >
+        Sign in to Create Deal
+      </button>
+    );
+  }
 
   return (
     <>
