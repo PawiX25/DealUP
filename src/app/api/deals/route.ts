@@ -1,12 +1,15 @@
 import { prisma } from '@/lib/prisma';
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]/route';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const userId = request.nextUrl.searchParams.get('userId');
+    
     const deals = await prisma.deal.findMany({
+      where: userId ? { userId } : undefined,
       include: {
         user: true,
       },

@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import moment from 'moment';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import Link from 'next/link';
 import { detectStore } from '@/utils/stores';
 import SearchBar from '@/components/SearchBar';
 
@@ -25,20 +26,27 @@ interface Deal {
   imageUrl?: string;
 }
 
-export default function DealList() {
-  const [deals, setDeals] = useState<Deal[]>([]);
-  const [filteredDeals, setFilteredDeals] = useState<Deal[]>([]);
-  const [loading, setLoading] = useState(true);
+interface DealListProps {
+  initialDeals?: Deal[];
+  userId?: string;
+}
+
+export default function DealList({ initialDeals, userId }: DealListProps) {
+  const [deals, setDeals] = useState<Deal[]>(initialDeals || []);
+  const [filteredDeals, setFilteredDeals] = useState<Deal[]>(initialDeals || []);
+  const [loading, setLoading] = useState(!initialDeals);
 
   useEffect(() => {
-    fetch('/api/deals')
-      .then(res => res.json())
-      .then(data => {
-        setDeals(data);
-        setFilteredDeals(data);
-        setLoading(false);
-      });
-  }, []);
+    if (!initialDeals) {
+      fetch('/api/deals' + (userId ? `?userId=${userId}` : ''))
+        .then(res => res.json())
+        .then(data => {
+          setDeals(data);
+          setFilteredDeals(data);
+          setLoading(false);
+        });
+    }
+  }, [userId, initialDeals]);
 
   const handleSearch = useCallback((query: string, store: string | null) => {
     const searchLower = query.toLowerCase();
@@ -78,7 +86,7 @@ export default function DealList() {
 
   return (
     <div className="space-y-6">
-      <SearchBar onSearch={handleSearch} />
+      {!userId && <SearchBar onSearch={handleSearch} />}
       <div className="grid gap-6">
         {filteredDeals.map((deal, index) => {
           const savings = calculateSavings(deal.price, deal.comparisonPrice);
@@ -137,30 +145,32 @@ export default function DealList() {
                   </div>
                   <div className="mt-4 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      {deal.user.image ? (
-                        <div className="relative w-8 h-8 rounded-full overflow-hidden bg-secondary">
-                          <Image
-                            src={deal.user.image}
-                            alt={deal.user.name}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                          <span className="text-primary text-sm font-medium">
-                            {deal.user.name.charAt(0).toUpperCase()}
+                      <Link href={`/profile/${deal.user.id}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                        {deal.user.image ? (
+                          <div className="relative w-8 h-8 rounded-full overflow-hidden bg-secondary">
+                            <Image
+                              src={deal.user.image}
+                              alt={deal.user.name}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                            <span className="text-primary text-sm font-medium">
+                              {deal.user.name.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                        )}
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium text-foreground">
+                            {deal.user.name}
+                          </span>
+                          <span className="text-xs text-foreground/60">
+                            {moment(deal.createdAt).fromNow()}
                           </span>
                         </div>
-                      )}
-                      <div className="flex flex-col">
-                        <span className="text-sm font-medium text-foreground">
-                          {deal.user.name}
-                        </span>
-                        <span className="text-xs text-foreground/60">
-                          {moment(deal.createdAt).fromNow()}
-                        </span>
-                      </div>
+                      </Link>
                     </div>
                     <a
                       href={deal.link}
