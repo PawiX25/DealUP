@@ -3,8 +3,15 @@
 import { useEffect, useState, useCallback } from 'react';
 import moment from 'moment';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { detectStore } from '@/utils/stores';
 import SearchBar from '@/components/SearchBar';
+
+interface User {
+  id: string;
+  name: string;
+  image: string | null;
+}
 
 interface Deal {
   id: string;
@@ -13,9 +20,7 @@ interface Deal {
   price: number;
   link: string;
   createdAt: string;
-  user: {
-    name: string;
-  };
+  user: User;
   comparisonPrice?: number;
   imageUrl?: string;
 }
@@ -131,8 +136,31 @@ export default function DealList() {
                     </div>
                   </div>
                   <div className="mt-4 flex items-center justify-between">
-                    <div className="text-sm text-foreground/60">
-                      Posted by {deal.user.name} • {moment(deal.createdAt).fromNow()}
+                    <div className="flex items-center gap-2">
+                      {deal.user.image ? (
+                        <div className="relative w-8 h-8 rounded-full overflow-hidden bg-secondary">
+                          <Image
+                            src={deal.user.image}
+                            alt={deal.user.name}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                          <span className="text-primary text-sm font-medium">
+                            {deal.user.name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium text-foreground">
+                          {deal.user.name}
+                        </span>
+                        <span className="text-xs text-foreground/60">
+                          {moment(deal.createdAt).fromNow()}
+                        </span>
+                      </div>
                     </div>
                     <a
                       href={deal.link}
