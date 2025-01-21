@@ -98,7 +98,10 @@ export default function DealList({ initialDeals, userId }: DealListProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: index * 0.1 }}
               key={deal.id}
-              className="bg-background p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-border overflow-hidden"
+              className="bg-background p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-border overflow-hidden cursor-pointer"
+              onClick={() => {
+                window.location.href = `/deal/${deal.id}`;
+              }}
             >
               <div className="flex gap-6">
                 {deal.imageUrl && (
@@ -145,7 +148,11 @@ export default function DealList({ initialDeals, userId }: DealListProps) {
                   </div>
                   <div className="mt-4 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Link href={`/profile/${deal.user.id}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                      <Link 
+                        href={`/profile/${deal.user.id}`} 
+                        className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         {deal.user.image ? (
                           <div className="relative w-8 h-8 rounded-full overflow-hidden bg-secondary">
                             <Image
@@ -177,6 +184,7 @@ export default function DealList({ initialDeals, userId }: DealListProps) {
                       className="inline-flex items-center px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-md transition-colors"
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
                     >
                       View Deal
                     </a>
