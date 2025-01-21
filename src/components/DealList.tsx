@@ -105,14 +105,14 @@ export default function DealList({ initialDeals, userId }: DealListProps) {
             >
               <div className="flex gap-6">
                 {deal.imageUrl && (
-                  <div className="flex-shrink-0 w-48 h-32 rounded-lg overflow-hidden">
+                  <div className="flex-shrink-0 w-48 h-48 bg-white rounded-lg overflow-hidden flex items-center justify-center">
                     <img
                       src={deal.imageUrl}
                       alt={deal.title}
-                      className="w-full h-full object-cover"
+                      className="max-w-full max-h-full object-contain"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        target.src = 'https://placehold.co/192x128?text=No+Image';
+                        target.src = 'https://placehold.co/192x192?text=No+Image';
                       }}
                     />
                   </div>
