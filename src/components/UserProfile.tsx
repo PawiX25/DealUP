@@ -6,13 +6,29 @@ import moment from 'moment';
 import { useSession } from 'next-auth/react';
 import DealList from './DealList';
 
+interface Deal {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  comparisonPrice?: number;
+  imageUrl?: string;
+  link: string;
+  createdAt: string;
+  user: {
+    id: string;
+    name: string;
+    image: string | null;
+  };
+}
+
 interface UserProfileProps {
   user: {
     id: string;
     name: string;
     image: string | null;
     email: string;
-    deals: any[];
+    deals: Deal[];
     _count: {
       deals: number;
     };

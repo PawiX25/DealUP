@@ -1,6 +1,14 @@
 import { NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
 
+interface ScrapedData {
+  title: string;
+  price: number | null;
+  comparisonPrice: number | null;
+  imageUrl: string;
+  description: string;
+}
+
 async function fetchWithTimeout(url: string, timeout = 5000) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
@@ -23,7 +31,7 @@ export async function POST(request: Request) {
     const response = await fetchWithTimeout(url);
     const html = await response.text();
     const $ = cheerio.load(html);
-    let data: any = { title: '', price: null, comparisonPrice: null, imageUrl: '', description: '' };
+    const data: ScrapedData = { title: '', price: null, comparisonPrice: null, imageUrl: '', description: '' };
 
     const titleSelectors = ['h1', '[data-testid="product-title"]', '.product-title', '.product-name', '[itemprop="name"]', '#title'];
     const priceSelectors = ['.price-new', '.product_price', '.price-wrapper .price', '.price-wrapper span[data-price-type="finalPrice"]', 'span[data-price-type="finalPrice"]', '.special-price .price', '.product-info-price .price', '.price', '[data-price]', '[data-product-price]', '*:contains("zł")', '*:contains(" PLN")', '*:contains("złotych")'];
@@ -60,7 +68,7 @@ export async function POST(request: Request) {
       
       for (const element of elements) {
         const $el = $(element);
-        let priceText = $el.text().trim();
+        const priceText: string = $el.text().trim();
         
         if (!priceText || priceText.length > 50) continue;
         

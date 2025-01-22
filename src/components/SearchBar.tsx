@@ -15,7 +15,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
     if (!query) return [];
     const searchLower = query.toLowerCase();
     return Object.entries(stores)
-      .filter(([_, name]) => 
+      .filter(([, name]) => 
         name.toLowerCase().includes(searchLower)
       )
       .slice(0, 5);

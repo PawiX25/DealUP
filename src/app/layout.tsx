@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Link from "next/link";
 import "./globals.css";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./api/auth/[...nextauth]/route";
@@ -28,9 +29,9 @@ export default async function RootLayout({
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex justify-between h-16">
                 <div className="flex items-center">
-                  <a href="/" className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+                  <Link href="/" className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
                     DealUp
-                  </a>
+                  </Link>
                 </div>
                 <div className="flex items-center">
                   <AuthButton session={session} />

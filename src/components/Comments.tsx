@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Session } from 'next-auth';
 import moment from 'moment';
 import Image from 'next/image';
@@ -23,15 +23,15 @@ export default function Comments({ dealId, session }: { dealId: string, session:
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    fetchComments();
-  }, [dealId]);
-
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
     const response = await fetch(`/api/deals/${dealId}/comments`);
     const data = await response.json();
     setComments(data);
-  };
+  }, [dealId]);
+
+  useEffect(() => {
+    fetchComments();
+  }, [fetchComments]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

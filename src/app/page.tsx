@@ -1,4 +1,3 @@
-import Image from "next/image";
 import DealList from '@/components/DealList';
 import CreateDealButton from '@/components/CreateDealButton';
 
